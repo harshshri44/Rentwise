@@ -1,0 +1,134 @@
+<section id="hero" class="hero-section">
+  <div class="container hero-container">
+    <div class="hero-grid">
+      <!-- Left Hero Editorial Content & Search -->
+      <div class="hero-content">
+        <div class="hero-kicker">
+          <span class="kicker-pill">Direct Rental Marketplace</span>
+          <span class="kicker-sub">Zero Brokerage &bull; Direct Deals</span>
+        </div>
+
+        <h1 class="hero-title">
+          Find a Place You'll <br />
+          <span class="hero-title-accent">Love to Call Home.</span>
+        </h1>
+
+        <p class="hero-lead">
+          Discover rooms, shared flats, and rental homes that fit your budget, your lifestyle, and your location.
+        </p>
+
+        <!-- Prominent Multi-Parameter Search Bar -->
+        <form class="hero-search-card" (submit)="executeSearch($event)">
+          <div class="search-field-group">
+            <label for="hero-search-loc" class="search-label">
+              <svg viewBox="0 0 20 20" fill="currentColor" class="field-icon" aria-hidden="true">
+                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+              </svg>
+              <span>City or Locality</span>
+            </label>
+            <input
+              type="text"
+              id="hero-search-loc"
+              class="search-input"
+              placeholder="e.g. Pune, Kothrud, Baner"
+              [value]="searchLocation()"
+              (input)="searchLocation.set($any($event.target).value)"
+            />
+          </div>
+
+          <div class="field-divider" aria-hidden="true"></div>
+
+          <div class="search-field-group">
+            <label for="hero-search-type" class="search-label">
+              <svg viewBox="0 0 20 20" fill="currentColor" class="field-icon" aria-hidden="true">
+                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+              </svg>
+              <span>Accommodation Type</span>
+            </label>
+            <select
+              id="hero-search-type"
+              class="search-select"
+              [value]="searchType()"
+              (change)="searchType.set($any($event.target).value)"
+            >
+              <option value="">All Types</option>
+              <option value="Private Room">Private Room</option>
+              <option value="Shared Room">Shared Room</option>
+              <option value="Shared Flat">Shared Flat</option>
+              <option value="Full Apartment">Full Apartment</option>
+              <option value="Studio">Studio (1 RK)</option>
+            </select>
+          </div>
+
+          <div class="field-divider" aria-hidden="true"></div>
+
+          <div class="search-field-group">
+            <label for="hero-search-budget" class="search-label">
+              <span class="field-icon-inr">₹</span>
+              <span>Monthly Budget</span>
+            </label>
+            <select
+              id="hero-search-budget"
+              class="search-select"
+              [value]="searchBudget()"
+              (change)="searchBudget.set($any($event.target).value)"
+            >
+              <option value="all">Any Budget</option>
+              <option value="10000">Up to ₹10,000</option>
+              <option value="20000">Up to ₹20,000</option>
+              <option value="35000">Up to ₹35,000</option>
+              <option value="50000">Up to ₹50,000</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-primary search-submit-btn">
+            <svg viewBox="0 0 20 20" fill="currentColor" class="search-svg" aria-hidden="true">
+              <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
+            </svg>
+            <span>Search</span>
+          </button>
+        </form>
+
+        <!-- Secondary CTA Links -->
+        <div class="hero-actions-row">
+          <button type="button" class="btn btn-secondary btn-sm" (click)="scrollToSection('listings')">
+            Explore Rentals
+          </button>
+          <button type="button" class="btn btn-subtle btn-sm" (click)="openListProperty()">
+            + List Your Property
+          </button>
+          <span class="hero-guarantee-note">
+            <span class="check-mark">&#10003;</span> No broker commission
+          </span>
+        </div>
+      </div>
+
+      <!-- Right Hero Real Property Imagery -->
+      <div class="hero-media-wrapper">
+        <div class="hero-image-frame">
+          <img
+            src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"
+            alt="Bright, modern rental apartment interior with balcony"
+            class="hero-img"
+          />
+
+          <!-- Floating Featured Property Snippet -->
+          <div class="floating-featured-card">
+            <div class="featured-img-wrap">
+              <img
+                src="https://images.unsplash.com/photo-1598928506311-c55ded91a20c?auto=format&fit=crop&w=400&q=80"
+                alt="Furnished room in Pune"
+                class="featured-mini-img"
+              />
+            </div>
+            <div class="featured-info">
+              <span class="featured-tag">Featured Room</span>
+              <h4 class="featured-name">Kothrud, Pune</h4>
+              <span class="featured-price">₹8,500<small>/mo</small></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

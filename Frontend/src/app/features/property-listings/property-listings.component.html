@@ -1,0 +1,376 @@
+<section id="listings" class="listings-section">
+  <div class="container">
+    <!-- Header with Title, Count & Sort -->
+    <div class="listings-header">
+      <div class="header-titles">
+        <span class="section-kicker">Marketplace Catalog</span>
+        <h2 class="section-title">Discover Your Next Home.</h2>
+        <p class="section-desc">
+          Explore rental rooms, shared flats, and apartments that suit you.
+        </p>
+      </div>
+
+      <!-- Header Controls: Mobile Filter Toggle & Sort Dropdown -->
+      <div class="header-controls">
+        <button type="button" class="btn btn-secondary mobile-filter-btn" (click)="toggleMobileFilters()">
+          <svg viewBox="0 0 20 20" fill="currentColor" class="filter-svg" aria-hidden="true">
+            <path fill-rule="evenodd" d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z" clip-rule="evenodd"/>
+          </svg>
+          <span>Filters</span>
+          @if (activeFilterCount() > 0) {
+            <span class="filter-count-badge">{{ activeFilterCount() }}</span>
+          }
+        </button>
+
+        <div class="sort-control-wrap">
+          <label for="sort-select" class="sort-label">Sort by:</label>
+          <select id="sort-select" class="sort-select" [value]="store.sortOption()" (change)="onSortChange($event)">
+            <option value="recommended">Recommended</option>
+            <option value="rent-asc">Rent: Low to High</option>
+            <option value="rent-desc">Rent: High to Low</option>
+            <option value="newest">Recently Added</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Active Filter Chips Indicator -->
+    @if (activeFilterCount() > 0) {
+      <div class="active-filters-bar">
+        <span class="active-lbl">Active filters:</span>
+        <div class="active-chips">
+          @if (store.filters().searchTerm) {
+            <span class="filter-pill">
+              "{{ store.filters().searchTerm }}"
+              <button (click)="onSearchChange('')" aria-label="Clear search term">&times;</button>
+            </span>
+          }
+          @if (store.filters().city) {
+            <span class="filter-pill">
+              City: {{ store.filters().city }}
+              <button (click)="onCityChange('')" aria-label="Clear city filter">&times;</button>
+            </span>
+          }
+          @if (store.filters().locality) {
+            <span class="filter-pill">
+              Locality: {{ store.filters().locality }}
+              <button (click)="onLocalityChange('')" aria-label="Clear locality filter">&times;</button>
+            </span>
+          }
+          @if (store.filters().propertyType) {
+            <span class="filter-pill">
+              Type: {{ store.filters().propertyType }}
+              <button (click)="onTypeChange('')" aria-label="Clear type filter">&times;</button>
+            </span>
+          }
+          @if (store.filters().category !== 'all') {
+            <span class="filter-pill">
+              Category: {{ store.filters().category }}
+              <button (click)="store.setCategory('all')" aria-label="Clear category">&times;</button>
+            </span>
+          }
+          @if (store.filters().maxRent) {
+            <span class="filter-pill">
+              Max: ₹{{ store.filters().maxRent?.toLocaleString('en-IN') }}
+              <button (click)="onMaxRentChange('')" aria-label="Clear max rent">&times;</button>
+            </span>
+          }
+          @if (store.filters().bedrooms !== null) {
+            <span class="filter-pill">
+              {{ store.filters().bedrooms }} BHK
+              <button (click)="onBedroomsChange(null)" aria-label="Clear bedrooms filter">&times;</button>
+            </span>
+          }
+          @if (store.filters().furnishing) {
+            <span class="filter-pill">
+              {{ store.filters().furnishing }}
+              <button (click)="onFurnishingChange('')" aria-label="Clear furnishing">&times;</button>
+            </span>
+          }
+        </div>
+        <button type="button" class="btn-clear-all" (click)="resetAll()">
+          Clear All
+        </button>
+      </div>
+    }
+
+    <!-- Main Layout: Sidebar Filters + Property Grid -->
+    <div class="listings-body-layout">
+      <!-- Desktop Filters Sidebar / Mobile Drawer -->
+      <aside class="filters-sidebar" [class.mobile-open]="mobileFiltersOpen()">
+        <div class="filters-sidebar-header">
+          <h3 class="filters-heading">Filter Listings</h3>
+          <button type="button" class="close-mobile-filters" (click)="closeMobileFilters()" aria-label="Close filters">
+            &times;
+          </button>
+        </div>
+
+        <!-- Keyword Search -->
+        <div class="filter-group">
+          <label for="filter-kw" class="filter-label">Search Keyword</label>
+          <input
+            type="text"
+            id="filter-kw"
+            class="form-control"
+            placeholder="College, society, street..."
+            [value]="store.filters().searchTerm"
+            (input)="onSearchChange($any($event.target).value)"
+          />
+        </div>
+
+        <!-- City Dropdown -->
+        <div class="filter-group">
+          <label for="filter-city" class="filter-label">City</label>
+          <select
+            id="filter-city"
+            class="form-control"
+            [value]="store.filters().city"
+            (change)="onCityChange($any($event.target).value)"
+          >
+            <option value="">All Cities</option>
+            @for (city of store.availableCities(); track city) {
+              <option [value]="city">{{ city }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Locality Dropdown -->
+        <div class="filter-group">
+          <label for="filter-loc" class="filter-label">Locality</label>
+          <select
+            id="filter-loc"
+            class="form-control"
+            [value]="store.filters().locality"
+            (change)="onLocalityChange($any($event.target).value)"
+          >
+            <option value="">All Localities</option>
+            @for (loc of store.availableLocalities(); track loc) {
+              <option [value]="loc">{{ loc }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Accommodation Type -->
+        <div class="filter-group">
+          <label for="filter-type" class="filter-label">Property Type</label>
+          <select
+            id="filter-type"
+            class="form-control"
+            [value]="store.filters().propertyType"
+            (change)="onTypeChange($any($event.target).value)"
+          >
+            <option value="">All Types</option>
+            <option value="Private Room">Private Room</option>
+            <option value="Shared Room">Shared Room</option>
+            <option value="Shared Flat">Shared Flat</option>
+            <option value="Full Apartment">Full Apartment</option>
+            <option value="Studio">Studio (1 RK)</option>
+          </select>
+        </div>
+
+        <!-- Monthly Budget Range -->
+        <div class="filter-group">
+          <label class="filter-label">Monthly Rent (₹)</label>
+          <div class="budget-inputs-row">
+            <input
+              type="number"
+              class="form-control"
+              placeholder="Min"
+              [value]="store.filters().minRent || ''"
+              (input)="onMinRentChange($any($event.target).value)"
+            />
+            <span class="range-sep">-</span>
+            <input
+              type="number"
+              class="form-control"
+              placeholder="Max"
+              [value]="store.filters().maxRent || ''"
+              (input)="onMaxRentChange($any($event.target).value)"
+            />
+          </div>
+        </div>
+
+        <!-- Bedrooms (BHK) -->
+        <div class="filter-group">
+          <label class="filter-label">Bedrooms</label>
+          <div class="bhk-chips-grid">
+            <button
+              type="button"
+              class="bhk-chip"
+              [class.active]="store.filters().bedrooms === null"
+              (click)="onBedroomsChange(null)"
+            >
+              Any
+            </button>
+            <button
+              type="button"
+              class="bhk-chip"
+              [class.active]="store.filters().bedrooms === 0"
+              (click)="onBedroomsChange(0)"
+            >
+              Room / 1RK
+            </button>
+            <button
+              type="button"
+              class="bhk-chip"
+              [class.active]="store.filters().bedrooms === 1"
+              (click)="onBedroomsChange(1)"
+            >
+              1 BHK
+            </button>
+            <button
+              type="button"
+              class="bhk-chip"
+              [class.active]="store.filters().bedrooms === 2"
+              (click)="onBedroomsChange(2)"
+            >
+              2 BHK
+            </button>
+            <button
+              type="button"
+              class="bhk-chip"
+              [class.active]="store.filters().bedrooms === 3"
+              (click)="onBedroomsChange(3)"
+            >
+              3+ BHK
+            </button>
+          </div>
+        </div>
+
+        <!-- Furnishing Status -->
+        <div class="filter-group">
+          <label class="filter-label">Furnishing</label>
+          <div class="furnishing-options">
+            <label class="radio-label">
+              <input
+                type="radio"
+                name="furnishing"
+                value=""
+                [checked]="!store.filters().furnishing"
+                (change)="onFurnishingChange('')"
+              />
+              <span>Any</span>
+            </label>
+            <label class="radio-label">
+              <input
+                type="radio"
+                name="furnishing"
+                value="Furnished"
+                [checked]="store.filters().furnishing === 'Furnished'"
+                (change)="onFurnishingChange('Furnished')"
+              />
+              <span>Furnished</span>
+            </label>
+            <label class="radio-label">
+              <input
+                type="radio"
+                name="furnishing"
+                value="Semi-Furnished"
+                [checked]="store.filters().furnishing === 'Semi-Furnished'"
+                (change)="onFurnishingChange('Semi-Furnished')"
+              />
+              <span>Semi-Furnished</span>
+            </label>
+            <label class="radio-label">
+              <input
+                type="radio"
+                name="furnishing"
+                value="Unfurnished"
+                [checked]="store.filters().furnishing === 'Unfurnished'"
+                (change)="onFurnishingChange('Unfurnished')"
+              />
+              <span>Unfurnished</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Key Amenities Checkboxes -->
+        <div class="filter-group">
+          <label class="filter-label">Amenities</label>
+          <div class="amenities-filter-list">
+            @for (amenity of allAmenitiesList; track amenity) {
+              <label class="amenity-checkbox-row">
+                <input
+                  type="checkbox"
+                  [checked]="store.filters().amenities.includes(amenity)"
+                  (change)="toggleAmenityFilter(amenity)"
+                />
+                <span>{{ amenity }}</span>
+              </label>
+            }
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-secondary w-full" (click)="resetAll()">
+          Reset All Filters
+        </button>
+      </aside>
+
+      <!-- Property Grid Area -->
+      <main class="properties-catalog">
+        <div class="catalog-status-bar">
+          <span class="results-count">
+            Showing <strong>{{ store.filteredProperties().length }}</strong> rental properties
+            @if (store.filters().city) {
+              in {{ store.filters().city }}
+            }
+          </span>
+        </div>
+
+        <!-- Loading State -->
+        @if (store.isLoading()) {
+          <div class="loading-state-box">
+            <div class="spinner-circle"></div>
+            <h3 class="loading-title">Fetching Rental Listings...</h3>
+            <p class="loading-desc">Connecting to Spring Boot backend API.</p>
+          </div>
+        } @else if (store.apiError()) {
+          <!-- API Error / Offline State -->
+          <div class="api-error-box">
+            <div class="error-icon-circle" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="error-svg">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+            </div>
+            <h3 class="error-title">Spring Boot Backend Unreachable</h3>
+            <p class="error-desc">{{ store.apiError() }}</p>
+            <div class="error-actions">
+              <button type="button" class="btn btn-primary" (click)="store.loadServerProperties()">
+                Retry Connection
+              </button>
+              <button type="button" class="btn btn-secondary" (click)="store.setDemoMode(true)">
+                Switch to Demo Mode
+              </button>
+            </div>
+          </div>
+        } @else if (store.filteredProperties().length > 0) {
+          <div class="property-grid">
+            @for (property of store.filteredProperties(); track property.id) {
+              <app-property-card [property]="property"></app-property-card>
+            }
+          </div>
+        } @else {
+          <!-- Empty State -->
+          <div class="empty-results-box">
+            <div class="empty-icon-circle" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="empty-svg">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                <line x1="8" y1="11" x2="14" y2="11"></line>
+              </svg>
+            </div>
+            <h3 class="empty-title">No Properties Match Your Filters</h3>
+            <p class="empty-desc">
+              We couldn't find any rental listings matching your current combination of filters. Try widening your budget or clearing locality preferences.
+            </p>
+            <button type="button" class="btn btn-primary" (click)="resetAll()">
+              Reset All Filters
+            </button>
+          </div>
+        }
+      </main>
+    </div>
+  </div>
+</section>

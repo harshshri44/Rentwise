@@ -1,0 +1,230 @@
+@if (store.selectedProperty(); as property) {
+  <div class="modal-backdrop" (click)="close()">
+    <div class="modal-dialog" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" [attr.aria-label]="property.title">
+      <!-- Close Button -->
+      <button type="button" class="close-btn" (click)="close()" aria-label="Close details dialog">&times;</button>
+
+      <div class="modal-content-scroll">
+        <!-- Top Gallery Area -->
+        <div class="gallery-container">
+          <div class="main-photo-wrap">
+            <img
+              [src]="property.photos[activePhotoIndex()] || property.photos[0]"
+              [alt]="property.title"
+              class="main-photo"
+            />
+
+            @if (property.photos.length > 1) {
+              <button
+                type="button"
+                class="gallery-nav-btn prev-btn"
+                (click)="prevPhoto(property.photos.length)"
+                aria-label="Previous photograph"
+              >
+                &#10094;
+              </button>
+              <button
+                type="button"
+                class="gallery-nav-btn next-btn"
+                (click)="nextPhoto(property.photos.length)"
+                aria-label="Next photograph"
+              >
+                &#10095;
+              </button>
+
+              <div class="photo-counter mono">
+                {{ activePhotoIndex() + 1 }} / {{ property.photos.length }}
+              </div>
+            }
+          </div>
+
+          <!-- Thumbnails Row -->
+          @if (property.photos.length > 1) {
+            <div class="thumbnails-row">
+              @for (photo of property.photos; track photo; let idx = $index) {
+                <button
+                  type="button"
+                  class="thumb-btn"
+                  [class.active]="activePhotoIndex() === idx"
+                  (click)="setPhoto(idx)"
+                  [attr.aria-label]="'View photo ' + (idx + 1)"
+                >
+                  <img [src]="photo" [alt]="property.title + ' thumbnail ' + (idx + 1)" class="thumb-img" />
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Property Core Information Grid -->
+        <div class="details-body-grid">
+          <!-- Left Column: Specs, Description, Amenities -->
+          <div class="main-info-col">
+            <div class="badges-row">
+              <span class="badge badge-red">{{ property.propertyType }}</span>
+              <span class="badge badge-gray">{{ property.furnishing }}</span>
+              @if (property.category === 'student-friendly') {
+                <span class="badge badge-green">Student Friendly</span>
+              }
+            </div>
+
+            <h2 class="property-title">{{ property.title }}</h2>
+
+            <div class="location-row">
+              <svg viewBox="0 0 20 20" fill="currentColor" class="pin-icon" aria-hidden="true">
+                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+              </svg>
+              <span>{{ property.locality }}, {{ property.city }}</span>
+              @if (property.address) {
+                <span class="address-text">({{ property.address }})</span>
+              }
+            </div>
+
+            <!-- Specs Grid -->
+            <div class="specs-grid">
+              <div class="spec-card">
+                <span class="spec-label">Bedrooms</span>
+                <span class="spec-value">{{ property.bedrooms > 0 ? property.bedrooms + ' BHK' : 'Single Room' }}</span>
+              </div>
+              <div class="spec-card">
+                <span class="spec-label">Bathrooms</span>
+                <span class="spec-value">{{ property.bathrooms }} Private</span>
+              </div>
+              <div class="spec-card">
+                <span class="spec-label">Super Area</span>
+                <span class="spec-value">{{ property.areaSqFt }} sq.ft</span>
+              </div>
+              <div class="spec-card">
+                <span class="spec-label">Furnishing</span>
+                <span class="spec-value">{{ property.furnishing }}</span>
+              </div>
+            </div>
+
+            <!-- Description -->
+            <div class="section-block">
+              <h3 class="section-title">About this Accommodation</h3>
+              <p class="description-text">{{ property.description }}</p>
+            </div>
+
+            <!-- Amenities -->
+            <div class="section-block">
+              <h3 class="section-title">Available Amenities</h3>
+              <div class="amenities-grid">
+                @for (amenity of property.amenities; track amenity) {
+                  <div class="amenity-item">
+                    <svg viewBox="0 0 20 20" fill="currentColor" class="check-icon" aria-hidden="true">
+                      <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>{{ amenity }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Availability & Terms -->
+            <div class="section-block">
+              <h3 class="section-title">Rental Terms & Availability</h3>
+              <div class="terms-grid">
+                <div class="term-row">
+                  <span class="term-label">Availability:</span>
+                  <span class="term-value font-semibold text-green">{{ property.availability }}</span>
+                </div>
+                <div class="term-row">
+                  <span class="term-label">Minimum Lease:</span>
+                  <span class="term-value">6 Months</span>
+                </div>
+                <div class="term-row">
+                  <span class="term-label">Notice Period:</span>
+                  <span class="term-value">1 Month</span>
+                </div>
+                <div class="term-row">
+                  <span class="term-label">Brokerage:</span>
+                  <span class="term-value font-semibold">Zero Brokerage (Direct Deal)</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Sticky Action & Owner Card -->
+          <div class="sidebar-action-col">
+            <!-- Pricing Card -->
+            <div class="pricing-card">
+              <div class="price-header">
+                <span class="price-big">{{ formatInr(property.monthlyRent) }}</span>
+                <span class="price-period">/ month</span>
+              </div>
+
+              <div class="deposit-box">
+                <span class="deposit-lbl">Security Deposit</span>
+                <span class="deposit-val">{{ formatInr(property.securityDeposit) }}</span>
+              </div>
+
+              <!-- Primary Action Buttons -->
+              <div class="action-buttons-group">
+                <button type="button" class="btn btn-primary btn-lg w-full" (click)="contactOwner()">
+                  <svg viewBox="0 0 20 20" fill="currentColor" class="btn-svg" aria-hidden="true">
+                    <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 4V3z"/>
+                  </svg>
+                  <span>Contact Owner</span>
+                </button>
+
+                @if (isOwnerOfCurrentProperty()) {
+                  <button
+                    type="button"
+                    class="btn btn-danger w-full btn-lg unlist-btn"
+                    [disabled]="isDeleting()"
+                    (click)="unlistProperty()"
+                  >
+                    <svg viewBox="0 0 20 20" fill="currentColor" class="btn-svg" aria-hidden="true">
+                      <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                    <span>{{ isDeleting() ? 'Unlisting Property...' : 'Deal Done? Unlist Listing' }}</span>
+                  </button>
+                }
+
+                <div class="secondary-actions-row">
+                  <button
+                    type="button"
+                    class="btn btn-secondary btn-save"
+                    [class.saved]="store.favoriteIds().has(property.id)"
+                    (click)="toggleFavorite()"
+                  >
+                    <svg viewBox="0 0 24 24" fill="currentColor" class="heart-icon-sm" aria-hidden="true">
+                      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                    <span>{{ store.favoriteIds().has(property.id) ? 'Saved' : 'Save Property' }}</span>
+                  </button>
+
+                  <button type="button" class="btn btn-secondary" (click)="shareProperty()">
+                    <svg viewBox="0 0 20 20" fill="currentColor" class="share-icon-sm" aria-hidden="true">
+                      <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z"/>
+                    </svg>
+                    <span>Share</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Owner Info Card -->
+              <div class="owner-info-box">
+                <div class="owner-avatar">
+                  {{ property.contact.name.charAt(0) }}
+                </div>
+                <div class="owner-details">
+                  <span class="owner-name">{{ property.contact.name }}</span>
+                  <span class="owner-role">{{ property.contact.role }} &bull; Direct Listing</span>
+                </div>
+              </div>
+
+              <div class="direct-deal-notice">
+                <svg viewBox="0 0 20 20" fill="currentColor" class="shield-icon" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <span>Zero platform commission. Agreements are made directly with the owner.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}

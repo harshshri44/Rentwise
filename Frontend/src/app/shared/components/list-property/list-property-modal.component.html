@@ -1,0 +1,545 @@
+@if (store.isListPropertyOpen()) {
+  <div class="modal-backdrop" (click)="close()">
+    <div class="wizard-dialog" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-label="List Your Property Wizard">
+      <!-- Wizard Header -->
+      <div class="wizard-header">
+        <div class="wizard-title-group">
+          <span class="wizard-kicker">
+            @if (store.isDemoMode()) {
+              List on RentWise (Demo Mode)
+            } @else {
+              List on RentWise Marketplace
+            }
+          </span>
+          <h2 class="wizard-title">List Your Rental Property</h2>
+        </div>
+        <button type="button" class="close-btn" (click)="close()" aria-label="Close dialog">&times;</button>
+      </div>
+
+      <!-- Step Indicator -->
+      <div class="steps-progress-bar">
+        <div class="step-progress-item" [class.active]="currentStep() >= 1" [class.current]="currentStep() === 1">
+          <div class="step-num">1</div>
+          <span class="step-label">Basic Info</span>
+        </div>
+        <div class="step-line" [class.filled]="currentStep() > 1"></div>
+        <div class="step-progress-item" [class.active]="currentStep() >= 2" [class.current]="currentStep() === 2">
+          <div class="step-num">2</div>
+          <span class="step-label">Rental Terms</span>
+        </div>
+        <div class="step-line" [class.filled]="currentStep() > 2"></div>
+        <div class="step-progress-item" [class.active]="currentStep() >= 3" [class.current]="currentStep() === 3">
+          <div class="step-num">3</div>
+          <span class="step-label">Photos</span>
+        </div>
+        <div class="step-line" [class.filled]="currentStep() > 3"></div>
+        <div class="step-progress-item" [class.active]="currentStep() >= 4" [class.current]="currentStep() === 4">
+          <div class="step-num">4</div>
+          <span class="step-label">Contact</span>
+        </div>
+        <div class="step-line" [class.filled]="currentStep() > 4"></div>
+        <div class="step-progress-item" [class.active]="currentStep() >= 5" [class.current]="currentStep() === 5">
+          <div class="step-num">5</div>
+          <span class="step-label">Publish</span>
+        </div>
+      </div>
+
+      <!-- Wizard Body -->
+      <div class="wizard-body-scroll">
+        <form [formGroup]="listingForm" novalidate>
+          <!-- STEP 1: Basic Information -->
+          @if (currentStep() === 1) {
+            <div class="step-panel">
+              <h3 class="panel-heading">Step 1 — Basic Property Information</h3>
+              <p class="panel-desc">Describe your accommodation so students and tenants can easily discover it.</p>
+
+              <div class="form-group">
+                <label for="wiz-title" class="form-label">Property Title <span class="required">*</span></label>
+                <input
+                  type="text"
+                  id="wiz-title"
+                  formControlName="title"
+                  class="form-control"
+                  placeholder="e.g. Sunny Master Bedroom near Tech Park"
+                />
+                @if (listingForm.get('title')?.invalid && listingForm.get('title')?.touched) {
+                  <span class="form-error-text">Title must be at least 5 characters.</span>
+                }
+              </div>
+
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="wiz-city" class="form-label">City <span class="required">*</span></label>
+                  <select id="wiz-city" formControlName="city" class="form-control">
+                    <option value="" disabled selected>Select your city</option>
+                    <option value="Pune">Pune</option>
+                    <option value="Mumbai">Mumbai</option>
+                    <option value="Bengaluru">Bengaluru</option>
+                    <option value="Hyderabad">Hyderabad</option>
+                    <option value="Delhi NCR">Delhi NCR</option>
+                  </select>
+                  @if (listingForm.get('city')?.invalid && listingForm.get('city')?.touched) {
+                    <span class="form-error-text">Please select your city.</span>
+                  }
+                </div>
+                <div class="form-col">
+                  <label for="wiz-locality" class="form-label">Locality / Sector <span class="required">*</span></label>
+                  <input
+                    type="text"
+                    id="wiz-locality"
+                    formControlName="locality"
+                    class="form-control"
+                    placeholder="e.g. Kothrud, Baner, Indiranagar, HSR Layout"
+                  />
+                  @if (listingForm.get('locality')?.invalid && listingForm.get('locality')?.touched) {
+                    <span class="form-error-text">Locality is required.</span>
+                  }
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="wiz-address" class="form-label">Street Address <span class="text-muted">(Optional)</span></label>
+                <input
+                  type="text"
+                  id="wiz-address"
+                  formControlName="address"
+                  class="form-control"
+                  placeholder="e.g. Near Metro Station / Main Road (Optional)"
+                />
+              </div>
+
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="wiz-type" class="form-label">Accommodation Type <span class="required">*</span></label>
+                  <select id="wiz-type" formControlName="propertyType" class="form-control">
+                    <option value="" disabled selected>Select accommodation type</option>
+                    <option value="Private Room">Private Room (in shared flat/house)</option>
+                    <option value="Shared Room">Shared Room (twin sharing)</option>
+                    <option value="Shared Flat">Shared Flat (entire flatmate unit)</option>
+                    <option value="Full Apartment">Full Apartment / Flat</option>
+                    <option value="Studio">Studio Apartment (1 RK)</option>
+                    <option value="Villa">Independent House / Villa</option>
+                  </select>
+                  @if (listingForm.get('propertyType')?.invalid && listingForm.get('propertyType')?.touched) {
+                    <span class="form-error-text">Please select an accommodation type.</span>
+                  }
+                </div>
+                <div class="form-col">
+                  <label for="wiz-bedrooms" class="form-label">Bedrooms (BHK) <span class="required">*</span></label>
+                  <select id="wiz-bedrooms" formControlName="bedrooms" class="form-control">
+                    <option [ngValue]="null" disabled selected>Select bedrooms</option>
+                    <option [ngValue]="0">0 (Single Room / Studio)</option>
+                    <option [ngValue]="1">1 BHK / 1 Room</option>
+                    <option [ngValue]="2">2 BHK</option>
+                    <option [ngValue]="3">3 BHK</option>
+                    <option [ngValue]="4">4+ BHK</option>
+                  </select>
+                  @if (listingForm.get('bedrooms')?.invalid && listingForm.get('bedrooms')?.touched) {
+                    <span class="form-error-text">Please select bedroom count.</span>
+                  }
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="wiz-bathrooms" class="form-label">Bathrooms <span class="required">*</span></label>
+                  <input
+                    type="number"
+                    id="wiz-bathrooms"
+                    formControlName="bathrooms"
+                    class="form-control"
+                    placeholder="Enter bathrooms (min 1)"
+                    min="1"
+                    max="10"
+                  />
+                  @if (listingForm.get('bathrooms')?.invalid && listingForm.get('bathrooms')?.touched) {
+                    <span class="form-error-text">Bathroom count is required (min 1).</span>
+                  }
+                </div>
+                <div class="form-col">
+                  <label for="wiz-area" class="form-label">Super / Carpet Area (sq.ft) <span class="required">*</span></label>
+                  <input
+                    type="number"
+                    id="wiz-area"
+                    formControlName="areaSqFt"
+                    class="form-control"
+                    placeholder="Enter area (sq.ft, min 50)"
+                  />
+                  @if (listingForm.get('areaSqFt')?.invalid && listingForm.get('areaSqFt')?.touched) {
+                    <span class="form-error-text">Area is required (min 50 sq.ft).</span>
+                  }
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="wiz-desc" class="form-label">Property Description <span class="required">*</span></label>
+                <textarea
+                  id="wiz-desc"
+                  formControlName="description"
+                  class="form-control"
+                  rows="3"
+                  placeholder="Tell prospective tenants about room features, neighborhood, transit options, and house rules..."
+                ></textarea>
+                @if (listingForm.get('description')?.invalid && listingForm.get('description')?.touched) {
+                  <span class="form-error-text">Description must be at least 20 characters.</span>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- STEP 2: Rental Details & Amenities -->
+          @if (currentStep() === 2) {
+            <div class="step-panel">
+              <h3 class="panel-heading">Step 2 — Rental Terms & Amenities</h3>
+              <p class="panel-desc">Set transparent monthly rent, security deposit, and highlight available amenities.</p>
+
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="wiz-rent" class="form-label">Monthly Rent (₹ INR) <span class="required">*</span></label>
+                  <div class="input-with-symbol">
+                    <span class="symbol">₹</span>
+                    <input
+                      type="number"
+                      id="wiz-rent"
+                      formControlName="monthlyRent"
+                      class="form-control pl-symbol"
+                      placeholder="e.g. 12000"
+                    />
+                  </div>
+                  @if (listingForm.get('monthlyRent')?.invalid && listingForm.get('monthlyRent')?.touched) {
+                    <span class="form-error-text">Monthly rent is required (min ₹1,000).</span>
+                  }
+                </div>
+                <div class="form-col">
+                  <label for="wiz-deposit" class="form-label">Security Deposit (₹ INR) <span class="required">*</span></label>
+                  <div class="input-with-symbol">
+                    <span class="symbol">₹</span>
+                    <input
+                      type="number"
+                      id="wiz-deposit"
+                      formControlName="securityDeposit"
+                      class="form-control pl-symbol"
+                      placeholder="e.g. 24000"
+                    />
+                  </div>
+                  @if (listingForm.get('securityDeposit')?.invalid && listingForm.get('securityDeposit')?.touched) {
+                    <span class="form-error-text">Security deposit is required.</span>
+                  }
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="wiz-furnishing" class="form-label">Furnishing Status <span class="required">*</span></label>
+                  <select id="wiz-furnishing" formControlName="furnishing" class="form-control">
+                    <option value="" disabled selected>Select furnishing status</option>
+                    <option value="Furnished">Fully Furnished</option>
+                    <option value="Semi-Furnished">Semi-Furnished</option>
+                    <option value="Unfurnished">Unfurnished</option>
+                  </select>
+                  @if (listingForm.get('furnishing')?.invalid && listingForm.get('furnishing')?.touched) {
+                    <span class="form-error-text">Please select furnishing status.</span>
+                  }
+                </div>
+                <div class="form-col">
+                  <label for="wiz-avail" class="form-label">Availability <span class="required">*</span></label>
+                  <select id="wiz-avail" formControlName="availability" class="form-control">
+                    <option value="" disabled selected>Select availability</option>
+                    <option value="Available Immediately">Available Immediately</option>
+                    <option value="Available from 1st Nov">Available from 1st Nov</option>
+                    <option value="Available from 15th Nov">Available from 15th Nov</option>
+                    <option value="Available from 1st Dec">Available from 1st Dec</option>
+                  </select>
+                  @if (listingForm.get('availability')?.invalid && listingForm.get('availability')?.touched) {
+                    <span class="form-error-text">Please select availability.</span>
+                  }
+                </div>
+              </div>
+
+              <!-- Amenities Checkbox Grid -->
+              <div class="form-group">
+                <label class="form-label">Select Available Amenities</label>
+                <div class="amenities-checkbox-grid">
+                  @for (amenity of availableAmenities; track amenity) {
+                    <label class="checkbox-card" [class.selected]="selectedAmenities().has(amenity)">
+                      <input
+                        type="checkbox"
+                        [checked]="selectedAmenities().has(amenity)"
+                        (change)="toggleAmenity(amenity)"
+                        class="hidden-checkbox"
+                      />
+                      <span class="checkbox-custom">
+                        @if (selectedAmenities().has(amenity)) {
+                          &#10003;
+                        }
+                      </span>
+                      <span class="checkbox-label">{{ amenity }}</span>
+                    </label>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- STEP 3: Photographs -->
+          @if (currentStep() === 3) {
+            <div class="step-panel">
+              <h3 class="panel-heading">Step 3 — Property Photographs</h3>
+              <p class="panel-desc">Real, bright photographs build trust and attract 4x more tenant inquiries.</p>
+
+              <!-- Drag & Drop Uploader -->
+              <div class="upload-dropzone">
+                <input
+                  type="file"
+                  id="photo-file-input"
+                  multiple
+                  accept="image/jpeg,image/png,image/webp"
+                  (change)="onFilesSelected($event)"
+                  class="file-input-hidden"
+                />
+                <label for="photo-file-input" class="dropzone-label">
+                  <div class="upload-icon-circle">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="upload-svg">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                      <circle cx="8.5" cy="8.5" r="1.5"/>
+                      <polyline points="21 15 16 10 5 21"/>
+                    </svg>
+                  </div>
+                  <span class="dropzone-text">Click to browse or drop photographs here</span>
+                  <span class="dropzone-sub">Supports JPG, PNG, WEBP (Max 5MB each)</span>
+                </label>
+              </div>
+
+              @if (fileError()) {
+                <div class="file-error-alert" role="alert">
+                  {{ fileError() }}
+                </div>
+              }
+
+              <!-- Previews Grid -->
+              <div class="photos-preview-section">
+                <span class="preview-count-label">
+                  Photographs Added ({{ uploadedPhotos().length }})
+                  <small>First image will be the primary cover photo.</small>
+                </span>
+
+                @if (uploadedPhotos().length === 0) {
+                  <div class="empty-photos-box">
+                    No photographs added yet. Select image files from your computer to preview them here.
+                  </div>
+                } @else {
+                  <div class="preview-cards-grid">
+                    @for (photo of uploadedPhotos(); track photo.url; let idx = $index) {
+                      <div class="photo-preview-item" [class.is-primary]="idx === 0">
+                        <img [src]="photo.url" [alt]="photo.name" class="preview-thumb-img" />
+                        @if (idx === 0) {
+                          <span class="primary-badge">Cover Photo</span>
+                        } @else {
+                          <button type="button" class="btn-set-primary" (click)="setPrimaryPhoto(idx)">
+                            Set as Cover
+                          </button>
+                        }
+                        <button type="button" class="btn-remove-photo" (click)="removePhoto(idx)" aria-label="Remove photograph">
+                          &times;
+                        </button>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- STEP 4: Contact Information -->
+          @if (currentStep() === 4) {
+            <div class="step-panel">
+              <h3 class="panel-heading">Step 4 — Contact Details</h3>
+              <p class="panel-desc">Interested flatmates and tenants will reach out directly using this information.</p>
+
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="wiz-contact-name" class="form-label">Contact Name <span class="required">*</span></label>
+                  <input
+                    type="text"
+                    id="wiz-contact-name"
+                    formControlName="contactName"
+                    class="form-control"
+                    placeholder="e.g. Rahul Sharma"
+                  />
+                  @if (listingForm.get('contactName')?.invalid && listingForm.get('contactName')?.touched) {
+                    <span class="form-error-text">Contact name is required.</span>
+                  }
+                </div>
+                <div class="form-col">
+                  <label for="wiz-contact-role" class="form-label">Your Role <span class="required">*</span></label>
+                  <select id="wiz-contact-role" formControlName="contactRole" class="form-control">
+                    <option value="" disabled selected>Select your role</option>
+                    <option value="Flatmate">Current Flatmate / Roommate</option>
+                    <option value="Owner">Property Owner</option>
+                    <option value="Landlord">Landlord / Caretaker</option>
+                  </select>
+                  @if (listingForm.get('contactRole')?.invalid && listingForm.get('contactRole')?.touched) {
+                    <span class="form-error-text">Please select your role.</span>
+                  }
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-col">
+                  <label for="wiz-contact-phone" class="form-label">Phone Number <span class="required">*</span></label>
+                  <input
+                    type="tel"
+                    id="wiz-contact-phone"
+                    formControlName="contactPhone"
+                    class="form-control"
+                    placeholder="e.g. 9822011234"
+                  />
+                  @if (listingForm.get('contactPhone')?.invalid && listingForm.get('contactPhone')?.touched) {
+                    <span class="form-error-text">Please enter a valid phone number (10-14 digits).</span>
+                  }
+                </div>
+                <div class="form-col">
+                  <label for="wiz-contact-email" class="form-label">Email Address <span class="required">*</span></label>
+                  <input
+                    type="email"
+                    id="wiz-contact-email"
+                    formControlName="contactEmail"
+                    class="form-control"
+                    placeholder="e.g. rahul.sharma@example.com"
+                  />
+                  @if (listingForm.get('contactEmail')?.invalid && listingForm.get('contactEmail')?.touched) {
+                    <span class="form-error-text">Please enter a valid email address.</span>
+                  }
+                </div>
+              </div>
+
+              <div class="privacy-note">
+                <svg viewBox="0 0 20 20" fill="currentColor" class="lock-icon" aria-hidden="true">
+                  <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                </svg>
+                <span>Direct communication. RentWise never shares your contact details with external commercial telemarketers.</span>
+              </div>
+            </div>
+          }
+
+          <!-- STEP 5: Preview and Publish -->
+          @if (currentStep() === 5) {
+            <div class="step-panel">
+              <h3 class="panel-heading">Step 5 — Review & Publish Listing</h3>
+              <p class="panel-desc">Check your listing details before publishing to the live RentWise marketplace.</p>
+
+              <!-- Realistic Card Preview -->
+              <div class="preview-summary-box">
+                <div class="preview-card-mockup">
+                  <div class="mockup-img-wrap">
+                    @if (uploadedPhotos().length > 0) {
+                      <img [src]="uploadedPhotos()[0].url" alt="Preview cover" class="mockup-img" />
+                    } @else {
+                      <div class="mockup-no-img">No Image Selected</div>
+                    }
+                    <span class="badge badge-red mockup-badge">{{ listingForm.value.propertyType || 'Property' }}</span>
+                  </div>
+                  <div class="mockup-body">
+                    <div class="mockup-price">
+                      <span>{{ formatInr(listingForm.value.monthlyRent) }}</span>
+                      <small>/month &bull; Deposit: {{ formatInr(listingForm.value.securityDeposit) }}</small>
+                    </div>
+                    <h4 class="mockup-title">{{ listingForm.value.title || 'Untitled Property' }}</h4>
+                    <span class="mockup-loc">{{ listingForm.value.locality || 'Locality' }}, {{ listingForm.value.city || 'City' }}</span>
+                    <div class="mockup-specs">
+                      <span>{{ listingForm.value.furnishing || 'Furnishing' }}</span> &bull;
+                      <span>{{ listingForm.value.areaSqFt || '0' }} sq.ft</span> &bull;
+                      <span>{{ listingForm.value.availability || 'Immediate' }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="summary-details-list">
+                  <div class="sum-row">
+                    <span class="sum-lbl">Title:</span>
+                    <span class="sum-val">{{ listingForm.value.title }}</span>
+                  </div>
+                  <div class="sum-row">
+                    <span class="sum-lbl">Location:</span>
+                    <span class="sum-val">{{ listingForm.value.locality }}, {{ listingForm.value.city }}</span>
+                  </div>
+                  <div class="sum-row">
+                    <span class="sum-lbl">Monthly Rent:</span>
+                    <span class="sum-val font-bold text-red">{{ formatInr(listingForm.value.monthlyRent) }}</span>
+                  </div>
+                  <div class="sum-row">
+                    <span class="sum-lbl">Security Deposit:</span>
+                    <span class="sum-val">{{ formatInr(listingForm.value.securityDeposit) }}</span>
+                  </div>
+                  <div class="sum-row">
+                    <span class="sum-lbl">Contact Person:</span>
+                    <span class="sum-val">{{ listingForm.value.contactName }} ({{ listingForm.value.contactRole }}) - {{ listingForm.value.contactPhone }}</span>
+                  </div>
+                  <div class="sum-row">
+                    <span class="sum-lbl">Photographs:</span>
+                    <span class="sum-val">{{ uploadedPhotos().length }} image(s) uploaded</span>
+                  </div>
+                  <div class="sum-row">
+                    <span class="sum-lbl">Amenities:</span>
+                    <span class="sum-val">{{ selectedAmenities().size }} selected</span>
+                  </div>
+                </div>
+              </div>
+
+              @if (submitError()) {
+                <div class="submit-error-alert" role="alert">
+                  <strong>Backend Error:</strong> {{ submitError() }}
+                </div>
+              }
+
+              <div class="ready-notice">
+                <span class="check-icon-large">&#10003;</span>
+                @if (store.isDemoMode()) {
+                  <span>Listing will be added immediately to the local Demo Mode marketplace catalog.</span>
+                } @else {
+                  <span>Listing will be sent directly to the Spring Boot REST API at <code>http://localhost:8080/api/v1/properties</code>.</span>
+                }
+              </div>
+            </div>
+          }
+        </form>
+      </div>
+
+      <!-- Wizard Footer Controls -->
+      <div class="wizard-footer">
+        <div>
+          @if (currentStep() > 1) {
+            <button type="button" class="btn btn-secondary" (click)="prevStep()">
+              &larr; Back
+            </button>
+          }
+        </div>
+
+        <div class="wizard-footer-right">
+          <button type="button" class="btn btn-ghost" (click)="close()">
+            Cancel
+          </button>
+
+          @if (currentStep() < totalSteps) {
+            <button type="button" class="btn btn-primary" (click)="nextStep()">
+              Continue &rarr;
+            </button>
+          } @else {
+            <button
+              type="button"
+              class="btn btn-primary btn-publish"
+              [disabled]="isSubmitting()"
+              (click)="publishListing()"
+            >
+              @if (isSubmitting()) {
+                <span>Publishing...</span>
+              } @else {
+                <span>Publish Listing &rarr;</span>
+              }
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+}

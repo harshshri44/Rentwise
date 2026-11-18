@@ -1,0 +1,70 @@
+<section id="rooms-shared-flats" class="shared-section">
+  <div class="container">
+    <div class="shared-header">
+      <span class="section-kicker">For Students & Working Professionals</span>
+      <h2 class="section-title">Rooms & Shared Accommodation Made Simple.</h2>
+      <p class="section-desc">
+        Relocating for study or work? Discover verified room vacancies, friendly flatmates, and ready-to-move shared spaces without middleman fees.
+      </p>
+    </div>
+
+    <!-- Quick Category Chips -->
+    <div class="category-chips-row">
+      @for (cat of categories; track cat.id) {
+        <button
+          type="button"
+          class="cat-chip-btn"
+          [class.active]="isCategoryActive(cat.id)"
+          (click)="selectCategory(cat.id)"
+        >
+          {{ cat.label }}
+        </button>
+      }
+    </div>
+
+    <!-- Student & Relocation Advantages -->
+    <div class="value-cards-grid">
+      <div class="value-card">
+        <div class="value-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="v-icon">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+        </div>
+        <h3 class="value-title">Direct Flatmate & Owner Connect</h3>
+        <p class="value-text">
+          Speak straight to existing tenants or landlords. Ask about roommate habits, cooking arrangements, and society culture before deciding.
+        </p>
+      </div>
+
+      <div class="value-card">
+        <div class="value-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="v-icon">
+            <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+            <line x1="12" y1="8" x2="12" y2="16"></line>
+            <line x1="8" y1="12" x2="16" y2="12"></line>
+          </svg>
+        </div>
+        <h3 class="value-title">Upfront Rent & Low Deposits</h3>
+        <p class="value-text">
+          Every listing clearly states monthly rent and security deposits up front. No surprise broker commissions or hidden maintenance surcharges.
+        </p>
+      </div>
+
+      <div class="value-card">
+        <div class="value-icon-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="v-icon">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+        </div>
+        <h3 class="value-title">Furnished & Move-in Ready</h3>
+        <p class="value-text">
+          Bed, mattress, wardrobe, Wi-Fi, and kitchen essentials ready on day one. Pack your bags and start living without buying bulky furniture.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,6 @@
+.rentwise-main {
+  min-height: 100vh;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}

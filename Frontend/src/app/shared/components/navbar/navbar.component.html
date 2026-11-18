@@ -1,0 +1,256 @@
+<header class="navbar-wrapper" [class.scrolled]="isScrolled()">
+  <nav class="navbar-container container" aria-label="Main Navigation">
+    <!-- Brand Logo -->
+    <a href="#" class="brand-link" (click)="scrollToSection('hero', $event)" aria-label="RentWise Home">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="32" height="32" rx="8" fill="#E53935"/>
+          <path d="M8 22V13L16 6L24 13V22C24 23.1 23.1 24 22 24H10C8.9 24 8 23.1 8 22Z" fill="#FFFFFF"/>
+          <rect x="13" y="16" width="6" height="8" rx="1" fill="#E53935"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-name">RentWise</span>
+        <span class="brand-tagline">Rentals</span>
+      </div>
+    </a>
+
+    <!-- Center Desktop Navigation Links -->
+    <ul class="nav-links">
+      <li><a href="#listings" (click)="scrollToSection('listings', $event)">Explore Properties</a></li>
+      <li><a href="#rooms-shared-flats" (click)="scrollToSection('rooms-shared-flats', $event)">Rooms & Shared Flats</a></li>
+      <li><a href="#how-it-works" (click)="scrollToSection('how-it-works', $event)">How It Works</a></li>
+    </ul>
+
+    <!-- Right Actions -->
+    <div class="nav-actions">
+      @if (auth.isLoggedIn()) {
+        <div class="user-chip">
+          <div class="user-avatar" [class.is-owner]="auth.isOwner()">
+            {{ auth.currentUser()?.name?.charAt(0) || 'U' }}
+          </div>
+          <div class="user-info">
+            <span class="user-name">{{ auth.currentUser()?.name }}</span>
+            <span class="role-badge" [class.badge-owner]="auth.isOwner()" [class.badge-tenant]="auth.isTenant()">
+              {{ auth.isOwner() ? 'Owner' : 'Tenant' }}
+            </span>
+          </div>
+        </div>
+        <button type="button" class="btn btn-ghost btn-sm btn-logout" (click)="logout()">
+          Log Out
+        </button>
+      } @else {
+        <button type="button" class="btn btn-ghost btn-sm" (click)="openAuth('login')">
+          Log In
+        </button>
+      }
+
+      <button type="button" class="btn btn-primary btn-sm btn-list-property" (click)="openListProperty()">
+        <svg viewBox="0 0 20 20" fill="currentColor" class="plus-icon" aria-hidden="true">
+          <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
+        </svg>
+        <span>List Your Property</span>
+      </button>
+
+      <!-- Mobile Hamburger Toggle -->
+      <button
+        type="button"
+        class="mobile-toggle"
+        [class.active]="mobileMenuOpen()"
+        (click)="toggleMobileMenu()"
+        aria-label="Toggle Navigation Menu"
+        [attr.aria-expanded]="mobileMenuOpen()"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Drawer Menu -->
+  @if (mobileMenuOpen()) {
+    <div class="mobile-drawer" role="dialog" aria-modal="true">
+      <div class="mobile-drawer-content container">
+        <ul class="mobile-nav-links">
+          <li><a href="#listings" (click)="scrollToSection('listings', $event)">Explore Properties</a></li>
+          <li><a href="#rooms-shared-flats" (click)="scrollToSection('rooms-shared-flats', $event)">Rooms & Shared Flats</a></li>
+          <li><a href="#how-it-works" (click)="scrollToSection('how-it-works', $event)">How It Works</a></li>
+        </ul>
+        <div class="mobile-drawer-actions">
+          @if (auth.isLoggedIn()) {
+            <div class="mobile-user-status">
+              <span>Logged in as: <strong>{{ auth.currentUser()?.name }}</strong> ({{ auth.isOwner() ? 'Owner' : 'Tenant' }})</span>
+              <button type="button" class="btn btn-secondary w-full" (click)="logout()">Log Out</button>
+            </div>
+          } @else {
+            <button type="button" class="btn btn-secondary w-full" (click)="openAuth('login')">
+              Log In / Sign Up
+            </button>
+          }
+          <button type="button" class="btn btn-primary w-full" (click)="openListProperty()">
+            + List Your Property
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- JWT Auth Modal -->
+  @if (authModalOpen()) {
+    <div class="modal-backdrop" (click)="closeAuth()">
+      <div class="modal-card" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+        <div class="modal-header">
+          <div>
+            <h3 class="modal-title">{{ authMode() === 'login' ? 'Sign In with JWT' : 'Create Your RentWise Account' }}</h3>
+            <p class="modal-subtitle">
+              {{ authMode() === 'login' ? 'Sign in to list properties, contact owners, and manage listings.' : 'Join RentWise as an Owner or Tenant.' }}
+            </p>
+          </div>
+          <button type="button" class="modal-close-btn" (click)="closeAuth()" aria-label="Close dialog">&times;</button>
+        </div>
+
+        <!-- Auth Mode Toggle Tabs -->
+        <div class="auth-tabs">
+          <button
+            type="button"
+            class="auth-tab"
+            [class.active]="authMode() === 'login'"
+            (click)="openAuth('login')"
+          >
+            Log In
+          </button>
+          <button
+            type="button"
+            class="auth-tab"
+            [class.active]="authMode() === 'signup'"
+            (click)="openAuth('signup')"
+          >
+            Sign Up
+          </button>
+        </div>
+
+        @if (authMode() === 'login') {
+          <!-- Demo Accounts Helper for Presentation -->
+          <div class="demo-accounts-bar">
+            <span class="demo-label">1-Click Test Credentials:</span>
+            <div class="demo-btns">
+              <button type="button" class="btn-demo-pill" (click)="fillDemoCreds('owner')">
+                🏡 Owner Account
+              </button>
+              <button type="button" class="btn-demo-pill" (click)="fillDemoCreds('tenant')">
+                🔍 Tenant Account
+              </button>
+            </div>
+          </div>
+        }
+
+        <form class="modal-form" (submit)="submitAuth($event)">
+          @if (authError()) {
+            <div class="auth-error-alert">
+              {{ authError() }}
+            </div>
+          }
+
+          @if (authMode() === 'signup') {
+            <!-- Role Selection -->
+            <div class="form-group">
+              <label class="form-label">I am joining as:</label>
+              <div class="role-selection-grid">
+                <button
+                  type="button"
+                  class="role-card"
+                  [class.selected]="authRole() === 'OWNER'"
+                  (click)="authRole.set('OWNER')"
+                >
+                  <span class="role-icon">🏡</span>
+                  <div class="role-text">
+                    <span class="role-name">Property Owner</span>
+                    <span class="role-sub">I want to list properties</span>
+                  </div>
+                </button>
+                <button
+                  type="button"
+                  class="role-card"
+                  [class.selected]="authRole() === 'TENANT'"
+                  (click)="authRole.set('TENANT')"
+                >
+                  <span class="role-icon">🔍</span>
+                  <div class="role-text">
+                    <span class="role-name">Tenant / Renter</span>
+                    <span class="role-sub">I want to rent a flat/room</span>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="auth-name" class="form-label">Full Name</label>
+              <input
+                type="text"
+                id="auth-name"
+                class="form-control"
+                placeholder="e.g. Rahul Sharma"
+                [value]="authName()"
+                (input)="authName.set($any($event.target).value)"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="auth-phone" class="form-label">Phone Number</label>
+              <input
+                type="tel"
+                id="auth-phone"
+                class="form-control"
+                placeholder="e.g. +91 98765 43210"
+                [value]="authPhone()"
+                (input)="authPhone.set($any($event.target).value)"
+              />
+            </div>
+          }
+
+          <div class="form-group">
+            <label for="auth-email" class="form-label">Email Address</label>
+            <input
+              type="email"
+              id="auth-email"
+              class="form-control"
+              placeholder="you@example.com"
+              [value]="authEmail()"
+              (input)="authEmail.set($any($event.target).value)"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="auth-pwd" class="form-label">Password</label>
+            <input
+              type="password"
+              id="auth-pwd"
+              class="form-control"
+              placeholder="••••••••"
+              [value]="authPassword()"
+              (input)="authPassword.set($any($event.target).value)"
+              required
+            />
+          </div>
+
+          <button type="submit" class="btn btn-primary w-full btn-lg" [disabled]="authLoading()">
+            {{ authLoading() ? 'Authenticating with Spring Security...' : (authMode() === 'login' ? 'Log In' : 'Create Account') }}
+          </button>
+
+          <div class="modal-toggle-row">
+            @if (authMode() === 'login') {
+              <span>Don't have an account?</span>
+              <button type="button" class="link-btn" (click)="openAuth('signup')">Sign Up</button>
+            } @else {
+              <span>Already have an account?</span>
+              <button type="button" class="link-btn" (click)="openAuth('login')">Log In</button>
+            }
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</header>

@@ -1,0 +1,44 @@
+<section id="popular-locations" class="locations-section">
+  <div class="container">
+    <div class="section-header">
+      <div class="header-left">
+        <span class="section-kicker">Geographic Discovery</span>
+        <h2 class="section-title">Find Your Place in the Right Neighbourhood.</h2>
+      </div>
+      <p class="section-subtitle">
+        Explore rental rooms, student accommodation, and apartments in India's major employment and education hubs.
+      </p>
+    </div>
+
+    <!-- Locations Grid -->
+    <div class="locations-grid">
+      @for (loc of locations; track loc.city; let idx = $index) {
+        <div
+          class="location-card"
+          [class.card-featured]="idx === 0"
+          (click)="selectCity(loc.city)"
+          role="button"
+          tabindex="0"
+          [attr.aria-label]="'Explore rental listings in ' + loc.city"
+          (keydown.enter)="selectCity(loc.city)"
+        >
+          <img [src]="loc.photoUrl" [alt]="loc.city + ' neighborhood'" class="loc-img" loading="lazy" />
+          <div class="loc-overlay">
+            <div class="loc-top">
+              <span class="loc-state">{{ loc.state }}</span>
+            </div>
+            <div class="loc-bottom">
+              <h3 class="loc-city">{{ loc.city }}</h3>
+              <p class="loc-tagline">{{ loc.tagline }}</p>
+              <div class="loc-chips">
+                @for (sub of loc.popularLocalities.slice(0, 3); track sub) {
+                  <span class="loc-chip">{{ sub }}</span>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</section>

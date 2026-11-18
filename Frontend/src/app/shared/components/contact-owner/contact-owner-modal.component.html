@@ -1,0 +1,123 @@
+@if (store.isContactOwnerOpen() && store.contactProperty(); as property) {
+  <div class="modal-backdrop" (click)="close()">
+    <div class="modal-card" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" [attr.aria-label]="'Contact ' + property.contact.name">
+      <div class="modal-header">
+        <div>
+          <span class="modal-kicker">Direct Landlord & Flatmate Connection</span>
+          <h3 class="modal-title">Contact {{ property.contact.name }}</h3>
+          <p class="modal-subtitle">Regarding "{{ property.title }}"</p>
+        </div>
+        <button type="button" class="close-btn" (click)="close()" aria-label="Close dialog">&times;</button>
+      </div>
+
+      <!-- Quick Action Buttons -->
+      <div class="quick-channels-grid">
+        <!-- Phone Call -->
+        <a [href]="'tel:' + property.contact.phone" class="channel-btn phone-btn">
+          <svg viewBox="0 0 20 20" fill="currentColor" class="channel-icon" aria-hidden="true">
+            <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 4V3z"/>
+          </svg>
+          <div class="channel-text">
+            <span class="channel-label">Call Directly</span>
+            <span class="channel-val mono">{{ property.contact.phone }}</span>
+          </div>
+        </a>
+
+        <!-- WhatsApp Chat -->
+        <a [href]="getWhatsAppLink()" target="_blank" rel="noopener noreferrer" class="channel-btn whatsapp-btn">
+          <svg viewBox="0 0 24 24" fill="currentColor" class="channel-icon" aria-hidden="true">
+            <path d="M12.031 2C6.5 2 2 6.5 2 12.031c0 1.969.578 3.813 1.578 5.375L2 22l4.781-1.531A9.97 9.97 0 0012.031 22C17.562 22 22 17.531 22 12.031 22 6.5 17.562 2 12.031 2zm5.797 14.156c-.25.703-1.453 1.344-2 1.391-.531.047-1.203.078-3.906-1.047-3.266-1.359-5.344-4.688-5.5-4.906-.156-.219-1.297-1.734-1.297-3.313 0-1.578.828-2.359 1.125-2.688.297-.328.656-.406.875-.406.219 0 .438.016.625.016.203 0 .484-.078.75.563.281.672.953 2.344 1.047 2.516.094.172.156.375.031.609-.125.234-.188.375-.375.594-.188.219-.406.484-.578.656-.188.188-.391.391-.172.766.219.375.984 1.625 2.109 2.625 1.453 1.297 2.672 1.703 3.063 1.891.391.188.625.156.859-.094.234-.25 1-.1.172-1.266.172-.172.344-.141.563-.063.219.078 1.406.656 1.641.781.234.125.391.188.453.281.063.094.063.547-.188 1.25z"/>
+          </svg>
+          <div class="channel-text">
+            <span class="channel-label">WhatsApp Chat</span>
+            <span class="channel-val">Start Conversation</span>
+          </div>
+        </a>
+      </div>
+
+      <!-- Email Channel -->
+      @if (property.contact.email) {
+        <div class="email-row">
+          <span class="email-lbl">Email Address:</span>
+          <a [href]="getMailtoLink()" class="email-link">{{ property.contact.email }}</a>
+        </div>
+      }
+
+      <div class="divider">
+        <span>or send an in-app inquiry</span>
+      </div>
+
+      @if (!messageSent()) {
+        <!-- Inquiry Form -->
+        <form (submit)="sendInquiry($event)" class="inquiry-form">
+          <div class="form-row">
+            <div class="form-col">
+              <label for="sender-name" class="form-label">Your Name <span class="text-red">*</span></label>
+              <input
+                type="text"
+                id="sender-name"
+                class="form-control"
+                placeholder="e.g. Aryan Sharma"
+                [value]="senderName()"
+                (input)="senderName.set($any($event.target).value)"
+                required
+              />
+            </div>
+            <div class="form-col">
+              <label for="sender-phone" class="form-label">Phone Number <span class="text-red">*</span></label>
+              <input
+                type="tel"
+                id="sender-phone"
+                class="form-control"
+                placeholder="e.g. 9876543210"
+                [value]="senderPhone()"
+                (input)="senderPhone.set($any($event.target).value)"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="sender-msg" class="form-label">Message for {{ property.contact.name }}</label>
+            <textarea
+              id="sender-msg"
+              class="form-control"
+              rows="3"
+              [value]="senderMessage()"
+              (input)="senderMessage.set($any($event.target).value)"
+            ></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-full btn-lg" [disabled]="isSubmitting()">
+            @if (isSubmitting()) {
+              <span>Sending Inquiry...</span>
+            } @else {
+              <span>Send Inquiry to Owner</span>
+            }
+          </button>
+        </form>
+      } @else {
+        <div class="success-box">
+          <div class="success-icon" aria-hidden="true">&#10003;</div>
+          <h4 class="success-title">Message Delivered!</h4>
+          <p class="success-desc">
+            Your inquiry has been relayed to {{ property.contact.name }}. They typically respond within a few hours.
+          </p>
+          <button type="button" class="btn btn-secondary btn-sm" (click)="messageSent.set(false)">
+            Send Another Message
+          </button>
+        </div>
+      }
+
+      <!-- Trust Reminder -->
+      <div class="disclaimer-note">
+        <svg viewBox="0 0 20 20" fill="currentColor" class="info-icon" aria-hidden="true">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+        </svg>
+        <span>
+          RentWise connects prospective tenants directly with landlords and flatmates. Never transfer booking money before inspecting the property in person.
+        </span>
+      </div>
+    </div>
+  </div>
+}
